@@ -6,20 +6,20 @@
 <title>Jazz Guitar Woodshed</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a lead sheet on top, a practice notebook under it, the rhythm section docked at the bottom edge. */
+/* Layout: the neck is the page. Notes for the current chord on top, a quiet lead sheet under it, the rhythm section docked at the bottom edge. */
 :root{
   --paper:#eef1f7; --surface:#ffffff; --ink:#10203f; --muted:#586684; --line:#cdd5e5;
-  --blue:#1746c8; --blue-soft:#dfe7fb; --brass:#c98a1b; --brass-soft:#f8e6c2; --on-accent:#ffffff;
+  --blue:#1746c8; --blue-soft:#dfe7fb; --brass:#c98a1b; --brass-soft:#f8e6c2; --on-accent:#ffffff; --red:#c2412d; --on-brass:#10203f; --dock:#10203f; --dock-fg:#eef1f7;
   --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --paper:#0a1124; --surface:#121c37; --ink:#e7ecfa; --muted:#93a0c2; --line:#273659;
-  --blue:#86a4ff; --blue-soft:#1c2b57; --brass:#eab353; --brass-soft:#4a3a17; --on-accent:#0a1124; color-scheme:dark } }
+  --blue:#86a4ff; --blue-soft:#1c2b57; --brass:#eab353; --brass-soft:#4a3a17; --on-accent:#0a1124; --red:#ff8f7a; --on-brass:#0a1124; --dock:#050916; --dock-fg:#e7ecfa; color-scheme:dark } }
 :root[data-theme="dark"]{
   --paper:#0a1124; --surface:#121c37; --ink:#e7ecfa; --muted:#93a0c2; --line:#273659;
-  --blue:#86a4ff; --blue-soft:#1c2b57; --brass:#eab353; --brass-soft:#4a3a17; --on-accent:#0a1124; color-scheme:dark }
+  --blue:#86a4ff; --blue-soft:#1c2b57; --brass:#eab353; --brass-soft:#4a3a17; --on-accent:#0a1124; --red:#ff8f7a; --on-brass:#0a1124; --dock:#050916; --dock-fg:#e7ecfa; color-scheme:dark }
 
 *{box-sizing:border-box}
 html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
@@ -45,25 +45,54 @@ h2{font:800 20px/1.1 var(--display);letter-spacing:.04em;text-transform:uppercas
 .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .link{background:none;border:0;padding:4px 0;color:var(--blue);font-size:13px;text-decoration:underline}
 
-/* lead sheet */
-.chart{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:2px solid var(--ink);border-left:2px solid var(--ink)}
-.bar{display:flex;min-width:0;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);background:var(--surface);position:relative;min-height:56px}
-.bar small{position:absolute;top:1px;left:3px;font:400 9px var(--mono);color:var(--muted);pointer-events:none}
-.ch{flex:1 1 0;min-width:0;background:none;border:0;padding:12px 2px 6px;font:800 22px/1 var(--display);letter-spacing:.01em;white-space:nowrap;border-radius:0}
-.ch i{font:600 .62em var(--display);font-style:normal;vertical-align:.35em;margin-left:1px}
-.bar.two .ch{font-size:17px}
-.bar.four .ch{font-size:13px}
-.ch.sel{box-shadow:inset 0 0 0 2px var(--blue);color:var(--blue)}
-.ch.now{background:var(--brass);color:var(--on-accent)}
+/* lead sheet (kept quiet) */
+.chart{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.bar{display:flex;min-width:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;min-height:36px}
+.bar small{position:absolute;top:0;left:2px;font:400 8px var(--mono);color:var(--muted);pointer-events:none}
+.ch{flex:1 1 0;min-width:0;background:none;border:0;padding:9px 1px 4px;font:600 15px/1 var(--display);letter-spacing:.02em;white-space:nowrap;border-radius:0;color:var(--muted)}
+.ch i{font:600 .7em var(--display);font-style:normal;vertical-align:.3em;margin-left:1px}
+.bar.two .ch{font-size:13px}
+.bar.four .ch{font-size:11px}
+.ch.sel{box-shadow:inset 0 0 0 1.5px var(--blue);color:var(--blue)}
+.ch.now{background:var(--brass);color:var(--on-brass)}
+.sub{font:600 14px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
 
-/* live strip */
-.live{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--brass);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
-.live p{margin:0;font-size:13px;color:var(--muted)}
-.live p b{font:800 18px var(--display);color:var(--ink);letter-spacing:.02em}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{background:var(--blue-soft);color:var(--ink);border:1px solid transparent;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:500}
-.chip:active{border-color:var(--blue)}
+/* the neck */
+.hero{display:flex;flex-direction:column;gap:10px}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.eyebrow{margin:0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#heroChord{font:800 52px/.95 var(--display);letter-spacing:.01em;text-transform:none;color:var(--ink)}
+#heroNext{margin:0 0 4px;font-size:13px;color:var(--muted);text-align:right}
+#heroNext b{font:800 20px var(--display);color:var(--ink);display:block}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:var(--blue-soft);color:var(--ink);border:1px solid transparent;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:500;white-space:nowrap}
 .chip.best{background:var(--blue);color:var(--on-accent)}
+.neck{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 4px 2px;touch-action:pan-y;user-select:none;-webkit-user-select:none;overflow:hidden}
+.fb{width:100%;height:auto;display:block}
+.posrow{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;text-align:center}
+.posrow output{font-size:13px;color:var(--muted)}
+.posrow button{min-width:44px;font-size:18px;line-height:1;padding:8px 0}
+.legend{display:flex;gap:6px 12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:4px;vertical-align:-1px;background:var(--ink)}
+.legend i.rt{background:var(--blue)} .legend i.co{background:var(--surface);border:1.5px solid var(--ink)}
+.legend i.te{background:var(--brass)} .legend i.av{background:var(--surface);border:1.5px dashed var(--red)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{background:none;border:0;padding:7px 11px;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+svg .k-root{fill:var(--blue)} svg .k-tone{fill:var(--ink)}
+svg .k-colour{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+svg .k-tension{fill:var(--brass)}
+svg .k-avoid{fill:var(--surface);stroke:var(--red);stroke-width:1.5;stroke-dasharray:3 2.5}
+svg text.lb{font:600 11px var(--body);fill:var(--surface)}
+svg text.lb.k-colour{fill:var(--ink);stroke:none} svg text.lb.k-tension{fill:var(--on-brass)} svg text.lb.k-avoid{fill:var(--red);stroke:none}
+svg text.fr{font:500 12px var(--mono)}
+svg .inlay{fill:var(--line)}
+@media (prefers-reduced-motion: no-preference){
+  .fb.in-l{animation:inl .18s ease-out} .fb.in-r{animation:inr .18s ease-out}
+  @keyframes inl{from{transform:translateX(40px);opacity:.3}} @keyframes inr{from{transform:translateX(-40px);opacity:.3}}
+}
 
 /* notebook */
 .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:2px solid var(--ink)}
@@ -104,7 +133,7 @@ svg text.in{fill:var(--surface);font-weight:500}
 svg text.in.dk{fill:var(--ink)}
 
 /* rhythm section dock */
-.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--ink);color:var(--paper);
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--dock);color:var(--dock-fg);border-top:1px solid var(--line);
   padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .dock-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 12px;align-items:center}
 #play{grid-row:1/span 2;width:60px;height:60px;border-radius:50%;border:0;background:var(--brass);color:var(--ink);font:800 15px var(--display);letter-spacing:.06em;text-transform:uppercase}
@@ -113,22 +142,9 @@ svg text.in.dk{fill:var(--ink)}
 .tempo input{flex:1;min-width:0;accent-color:var(--brass)}
 .tempo output{font:500 13px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .mix{display:flex;gap:6px;flex-wrap:wrap}
-.mix button{background:none;border:1px solid var(--muted);color:var(--paper);opacity:.55;border-radius:999px;padding:4px 11px;font-size:12px}
+.mix button{background:none;border:1px solid var(--dock-fg);color:var(--dock-fg);opacity:.55;border-radius:999px;padding:4px 11px;font-size:12px}
 .mix button[aria-pressed="true"]{opacity:1;border-color:var(--brass);color:var(--brass)}
 
-/* scale sheet */
-.sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;background:rgba(5,10,25,.55)}
-.sheet-in{background:var(--surface);color:var(--ink);width:100%;max-width:720px;max-height:92%;overflow:auto;border-top:4px solid var(--blue);
-  padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px}
-.sheet h2{font-size:26px}
-.sheet .notes{font:500 14px var(--mono);margin:0}
-.sheet .notes span{color:var(--muted);font-size:11px;display:block}
-.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.ctl output{font-size:13px;color:var(--muted)}
-.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;background:var(--ink)}
-.legend i.rt{background:var(--blue)} .legend i.sc{background:var(--surface);border:1.3px solid var(--ink)}
-.fb{width:100%;height:auto;max-width:520px}
 @media (prefers-reduced-motion: no-preference){ .ch{transition:background .08s} }
 </style>
 </head>
@@ -143,13 +159,27 @@ svg text.in.dk{fill:var(--ink)}
     </div>
   </header>
 
-  <section>
-    <div class="sec-head"><h2 id="chartTitle">Chart</h2><button class="link" id="reset" hidden>Reset chart</button></div>
-    <p class="note" id="progNote" style="margin:4px 0 8px"></p>
-    <div class="chart" id="chart"></div>
+  <section class="hero" id="hero">
+    <div class="hero-top">
+      <div><p class="eyebrow" id="heroState">Notes for</p><h2 id="heroChord"></h2></div>
+      <p id="heroNext"></p>
+    </div>
+    <div class="chips" id="scales"></div>
+    <div class="neck" id="neck" tabindex="0" aria-label="Fretboard. Swipe left or right, or use the arrow keys, to change position."></div>
+    <div class="posrow"><button class="ghost" id="posDown" aria-label="Lower position">‹</button><output id="posLabel"></output><button class="ghost" id="posUp" aria-label="Higher position">›</button></div>
+    <div class="legend"><span><i class="rt"></i>Root</span><span><i></i>Chord tone</span><span><i class="co"></i>Colour</span><span><i class="te"></i>Tension</span><span><i class="av"></i>Passing only</span></div>
+    <div class="ctl">
+      <div class="seg" id="mode"><button data-mode="deg">Degrees</button><button data-mode="notes">Notes</button><button data-mode="fingers">Fingers</button></div>
+      <button class="ghost" id="hear">Hear the scale</button>
+    </div>
+    <p class="note" id="scaleWhy"></p>
   </section>
 
-  <section class="live" id="live" aria-live="polite"></section>
+  <section>
+    <div class="sec-head"><p class="sub" id="chartTitle">Chart</p><button class="link" id="reset" hidden>Reset chart</button></div>
+    <p class="note" id="progNote" style="margin:2px 0 8px"></p>
+    <div class="chart" id="chart"></div>
+  </section>
 
   <section>
     <div class="tabs" role="tablist" id="tabs">
@@ -174,7 +204,6 @@ svg text.in.dk{fill:var(--ink)}
   </div>
 </div>
 
-<div class="sheet" id="sheet" hidden><div class="sheet-in" id="sheetIn" role="dialog" aria-modal="true"></div></div>
 
 <script>
 const $=s=>document.querySelector(s);
@@ -320,12 +349,13 @@ function parse(str){
 }
 
 /* ---------- state ---------- */
-const S={prog:PROGS[1],key:5,bars:[],sel:{b:0,i:0},tab:'voic',cur:-1,tempo:120,mix:{piano:true,bass:true,drums:true},playing:false,subs:[],ways:[],licks:[]};
+const S={prog:PROGS[1],key:5,bars:[],sel:{b:0,i:0},tab:'voic',cur:-1,tempo:120,mix:{piano:true,bass:true,drums:true},pick:{},pos:5,mode:'deg',playing:false,subs:[],ways:[],licks:[]};
 try{const t=JSON.parse(localStorage.getItem('woodshed')||'{}');
   if(t.prog){const p=PROGS.find(x=>x.id===t.prog); if(p){S.prog=p;S.key=p.key;}}
   if(Number.isInteger(t.key)) S.key=mod(t.key); if(t.tempo) S.tempo=Math.min(220,Math.max(60,t.tempo));
+  if(['deg','notes','fingers'].includes(t.mode)) S.mode=t.mode;
 }catch(e){}
-const save=()=>{try{localStorage.setItem('woodshed',JSON.stringify({prog:S.prog.id,key:S.key,tempo:S.tempo}))}catch(e){}};
+const save=()=>{try{localStorage.setItem('woodshed',JSON.stringify({prog:S.prog.id,key:S.key,tempo:S.tempo,mode:S.mode}))}catch(e){}};
 
 function nm(pc){pc=mod(pc); const sig=mod(S.key+(S.prog.minor?3:0)); return (KEY_SHARPS[sig]||[]).includes(pc)?SHARP[pc]:FLAT[pc];}
 const pcOf=c=>mod(S.key+c.r);
@@ -360,25 +390,40 @@ function chordSvg(v){
 }
 function scalePcs(c,sc){const base=pcOf(c)+(sc.from||0);return sc.s.map(x=>mod(base+x));}
 function positions(pcs){const out=[];for(let f=1;f<=12;f++) if(pcs.includes(mod(4+f))) out.push(f);return out;}
-function fretboardSvg(c,sc,p,mode){
-  const pcs=scalePcs(c,sc), root=pcOf(c), tones=Q[c.q].iv.map(x=>mod(root+x));
-  const L=30,fw=62,sy=24,y0=16,W=L+5*fw+10,H=y0+5*sy+34;
-  let s=`<svg class="fb" viewBox="0 0 ${W} ${H}" role="img" aria-label="${sc.n} fingering at fret ${p}">`;
+function classify(x,c,ivs){
+  const tones=Q[c.q].iv.map(mod);
+  if(x===0) return 'root';
+  if(tones.includes(x)) return 'tone';
+  if(isDom(c)){ if([1,3,6,8].includes(x)) return 'tension'; if(x===5||x===11) return 'avoid'; return 'colour'; }
+  if(tones.includes(mod(x-1))) return 'avoid';
+  if(x===6) return 'tension';
+  return 'colour';
+}
+function degree(x,ivs,dom){const has=n=>ivs.includes(n);
+  if(dom&&has(4)){if(x===1)return '♭9';if(x===3)return '♯9';}
+  if(x===6) return has(4)&&!has(5)?'♯4':'♭5'; if(x===8) return has(4)&&!has(7)?'♯5':'♭6';
+  return ['1','♭2','2','♭3','3','4','','5','','6','♭7','7'][x];}
+function neckSvg(c,sc,p,mode,anim){
+  const root=pcOf(c), pcs=scalePcs(c,sc), ivs=pcs.map(pc=>mod(pc-root));
+  const L=26,fw=66,sy=31,y0=20,W=L+5*fw+8,H=y0+5*sy+34;
+  let s=`<svg class="fb${anim?' in-'+anim:''}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${sc.n} over ${cname(c)}, frets ${p} to ${p+4}">`;
+  for(let j=0;j<5;j++){const f=p+j,x=L+(j+.5)*fw,yc=y0+2.5*sy;
+    if([3,5,7,9,15].includes(f)) s+=`<circle class="inlay" cx="${x}" cy="${yc}" r="5"/>`;
+    if(f===12) s+=`<circle class="inlay" cx="${x}" cy="${yc-sy}" r="5"/><circle class="inlay" cx="${x}" cy="${yc+sy}" r="5"/>`;}
   for(let j=0;j<=5;j++) s+=`<path class="ln" d="M${L+j*fw} ${y0}V${y0+5*sy}"/>`;
   'EADGBe'.split('').forEach((nme,i)=>{const y=y0+(5-i)*sy;
-    s+=`<path class="ln" d="M${L} ${y}H${L+5*fw}"/><text x="12" y="${y+3.5}">${nme}</text>`;});
-  for(let j=0;j<5;j++) s+=`<text x="${L+(j+.5)*fw}" y="${y0+5*sy+24}">${p+j}</text>`;
+    s+=`<path class="ln" d="M${L} ${y}H${L+5*fw}"/><text x="11" y="${y+3.5}">${nme}</text>`;});
+  for(let j=0;j<5;j++) s+=`<text class="fr" x="${L+(j+.5)*fw}" y="${y0+5*sy+24}">${p+j}</text>`;
   for(let i=0;i<6;i++){
     let offs=[];for(let o=0;o<5;o++) if(pcs.includes(mod(OPEN[i]+p+o))) offs.push(o);
     if(i===3) offs=offs.filter(o=>o!==4);
     const wide=offs.includes(0)&&offs.includes(4);
     offs.forEach(o=>{
-      const pc=mod(OPEN[i]+p+o);
+      const pc=mod(OPEN[i]+p+o), iv=mod(pc-root), kind=classify(iv,c,ivs);
       let fg; if(wide) fg=o===0?1:o===4?4:(o===1?2:o===3?3:(offs.includes(1)?3:2));
       else if(offs.includes(4)) fg=o; else fg=o+1;
-      const cls=pc===root?'rt':tones.includes(pc)?'':'sc';
-      const x=L+(o+.5)*fw,y=y0+(5-i)*sy;
-      s+=`<circle class="dot ${cls}" cx="${x}" cy="${y}" r="10"/><text class="in${cls==='sc'?' dk':''}" x="${x}" y="${y+3.5}">${mode==='notes'?nm(pc):fg}</text>`;});
+      const x=L+(o+.5)*fw,y=y0+(5-i)*sy, lab=mode==='notes'?nm(pc):mode==='fingers'?fg:degree(iv,ivs,isDom(c));
+      s+=`<circle class="k-${kind}" cx="${x}" cy="${y}" r="${kind==='avoid'?10:kind==='root'?13.5:12.5}"/><text class="lb k-${kind}" x="${x}" y="${y+4}">${lab}</text>`;});
   }
   return s+'</svg>';
 }
@@ -493,25 +538,42 @@ function renderPickers(){
 function renderChart(){
   const f=flat();
   $('#chartTitle').textContent=`${S.prog.n} in ${FLAT[S.key]}${S.prog.minor?' minor':''}`;
-  $('#progNote').textContent=S.prog.note+' Tap any chord to study it.';
+  $('#progNote').textContent=S.prog.note+' Tap a chord to put it on the neck.';
   $('#chart').innerHTML=S.bars.map((bar,b)=>`<div class="bar${bar.length===2?' two':bar.length>2?' four':''}"><small>${b+1}</small>${bar.map((c,i)=>{
     const k=f.list.findIndex(e=>e.b===b&&e.i===i);
     return `<button class="ch${S.sel.b===b&&S.sel.i===i?' sel':''}${k===S.cur?' now':''}" data-b="${b}" data-i="${i}" data-k="${k}">${chtml(c)}</button>`;}).join('')}</div>`).join('');
   $('#reset').hidden=JSON.stringify(S.bars)===JSON.stringify(parse(S.prog.c));
 }
-let liveKey='';
-function renderLive(force){
+let heroKey='';
+function heroCtx(){
   const f=flat(), playing=S.playing&&S.cur>=0&&f.list[S.cur];
   const c=playing?f.list[S.cur].c:selChord();
   const nxt=playing?f.list[(S.cur+1)%f.list.length].c:around(S.sel.b,S.sel.i).next;
-  const key=(playing?'p':'s')+c.r+c.q+nxt.r+nxt.q+S.key;
-  if(key===liveKey&&!force) return; liveKey=key;
-  const ids=FAM_SCALES[Q[c.q].fam].slice();
-  if(S.prog.blues&&!S.prog.minor&&Q[c.q].fam==='maj') ids.push('majblues');
-  $('#live').innerHTML=`<p>${playing?'Now playing':'Scales for'} <b>${cname(c)}</b> ${playing?`· next ${cname(nxt)}`:''}</p>
-    <div class="chips">${ids.map((id,j)=>`<button class="chip${j===0?' best':''}" data-scale="${id}" data-r="${c.r}" data-q="${c.q}">${nm(pcOf(c)+(SCALES[id].from||0))} ${SCALES[id].n}</button>`).join('')}</div>
-    <p>Tap a scale to see where it sits on the neck.</p>`;
+  const fam=Q[c.q].fam, ids=FAM_SCALES[fam].slice();
+  if(S.prog.blues&&!S.prog.minor&&fam==='maj') ids.push('majblues');
+  const id=ids.includes(S.pick[fam])?S.pick[fam]:ids[0];
+  return {playing,c,nxt,ids,id,sc:SCALES[id],fam};
 }
+function renderHero(force,anim){
+  const h=heroCtx(), {c,nxt,sc}=h;
+  const key=[h.playing?'p':'s',c.r,c.q,nxt.r,nxt.q,S.key,h.id,S.pos,S.mode].join();
+  if(key===heroKey&&!force) return; heroKey=key;
+  $('#heroState').textContent=h.playing?'Now playing':'Notes for';
+  $('#heroChord').textContent=cname(c);
+  $('#heroNext').innerHTML=`next<b>${cname(nxt)}</b>`;
+  $('#scales').innerHTML=h.ids.map(id=>`<button class="chip${id===h.id?' best':''}" data-scale="${id}" aria-pressed="${id===h.id}">${nm(pcOf(c)+(SCALES[id].from||0))} ${SCALES[id].n}</button>`).join('');
+  $('#neck').innerHTML=neckSvg(c,sc,S.pos,S.mode,anim);
+  $('#posLabel').textContent=`Frets ${S.pos}–${S.pos+4} · swipe the neck to move`;
+  $('#posDown').disabled=S.pos<=1; $('#posUp').disabled=S.pos>=12;
+  document.querySelectorAll('#mode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===S.mode));
+  $('#scaleWhy').textContent=sc.w;
+}
+function movePos(dir){
+  const h=heroCtx(), ps=positions(scalePcs(h.c,h.sc));
+  const nx=dir>0?ps.find(f=>f>S.pos):ps.filter(f=>f<S.pos).pop();
+  if(nx==null) return; S.pos=nx; renderHero(true,dir>0?'l':'r');
+}
+function homePos(){const h=heroCtx(), ps=positions(scalePcs(h.c,h.sc)), rf=mod(pcOf(h.c)-4)||12; S.pos=ps.filter(x=>x<=rf).pop()||ps[0];}
 function renderPanel(){
   document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===S.tab));
   const c=selChord(), {b,i}=S.sel, {next}=around(b,i); let h='';
@@ -544,37 +606,8 @@ function renderPanel(){
   }
   $('#panel').innerHTML=h;
 }
-function renderAll(){renderChart();renderLive(true);renderPanel();}
-function loadProg(p,keepKey){S.prog=p;if(!keepKey)S.key=p.key;S.bars=parse(p.c);S.sel={b:0,i:0};S.cur=-1;beatNo=0;uiQ.length=0;renderPickers();renderAll();save();}
-
-/* scale sheet */
-let sheet=null;
-function openSheet(id,c){
-  const sc=SCALES[id], pcs=scalePcs(c,sc), ps=positions(pcs);
-  const rf=mod(pcOf(c)-4)||12; let p=ps.filter(x=>x<=rf).pop()||ps[0];
-  sheet={id,c,ps,p,mode:(sheet&&sheet.mode)||'fingers'}; drawSheet(); $('#sheet').hidden=false;
-}
-function degree(x,s){x=mod(x);const has=n=>s.some(v=>mod(v)===n);
-  if(x===6) return has(4)&&!has(5)?'♯4':'♭5'; if(x===8) return has(4)&&!has(7)?'♯5':'♭6';
-  return ['1','♭2','2','♭3','3','4','','5','','6','♭7','7'][x];}
-function drawSheet(){
-  const {id,c,ps,p,mode}=sheet, sc=SCALES[id], off=sc.from||0, k=ps.indexOf(p);
-  $('#sheetIn').innerHTML=`<div class="sec-head"><h2>${nm(pcOf(c)+off)} ${sc.n}</h2><button class="ghost" data-x="close">Close</button></div>
-    <p class="note">Over <b>${cname(c)}</b>. ${sc.w}</p>
-    <p class="notes">${sc.s.map(x=>nm(pcOf(c)+off+x)).join('  ')}<span>${sc.s.map(x=>degree(x+off,sc.s.map(v=>v+off))).join('  ')} &nbsp;(against the chord root)</span></p>
-    ${fretboardSvg(c,sc,p,mode)}
-    <div class="legend"><span><i class="rt"></i>Chord root</span><span><i></i>Chord tone</span><span><i class="sc"></i>Other scale note</span></div>
-    <div class="ctl">
-      <button class="ghost" data-x="down"${k<=0?' disabled':''}>◀ Lower</button>
-      <output>Position ${k+1} of ${ps.length}, fret ${p}</output>
-      <button class="ghost" data-x="up"${k>=ps.length-1?' disabled':''}>Higher ▶</button>
-    </div>
-    <div class="ctl">
-      <button class="ghost" data-x="mode">${mode==='fingers'?'Show note names':'Show fingers'}</button>
-      <button class="ghost" data-x="hear">Hear the scale</button>
-    </div>
-    <p class="note">Numbers are left-hand fingers with the index at fret ${p}. Where a string has three notes spread over five frets, stretch or shift.</p>`;
-}
+function renderAll(){renderChart();renderHero(true);renderPanel();}
+function loadProg(p,keepKey){S.prog=p;if(!keepKey)S.key=p.key;S.bars=parse(p.c);S.sel={b:0,i:0};S.cur=-1;beatNo=0;uiQ.length=0;homePos();renderPickers();renderAll();save();}
 
 /* ---------- audio ---------- */
 let ctx,bus={},noise,timer=null,beatNo=0,beatTime=0;const uiQ=[];
@@ -647,12 +680,12 @@ function tick(){
 function frame(){
   if(!S.playing) return;
   let ch=false; while(uiQ.length&&uiQ[0].t<=ctx.currentTime){S.cur=uiQ.shift().k;ch=true;}
-  if(ch){document.querySelectorAll('.ch').forEach(el=>el.classList.toggle('now',+el.dataset.k===S.cur));renderLive();}
+  if(ch){document.querySelectorAll('.ch').forEach(el=>el.classList.toggle('now',+el.dataset.k===S.cur));renderHero();}
   requestAnimationFrame(frame);
 }
 function start(){audio();S.playing=true;beatNo=0;beatTime=ctx.currentTime+.12;uiQ.length=0;tick();timer=setInterval(tick,25);
   $('#play').textContent='Stop';$('#play').setAttribute('aria-label','Stop');requestAnimationFrame(frame);}
-function stop(){S.playing=false;clearInterval(timer);S.cur=-1;uiQ.length=0;$('#play').textContent='Play';$('#play').setAttribute('aria-label','Play the changes');renderChart();renderLive(true);}
+function stop(){S.playing=false;clearInterval(timer);S.cur=-1;uiQ.length=0;$('#play').textContent='Play';$('#play').setAttribute('aria-label','Play the changes');renderChart();renderHero(true);}
 function playLine(pitches,swing){
   audio();const bd=60/S.tempo;let t=ctx.currentTime+.06;
   pitches.forEach((m,x)=>{const last=x===pitches.length-1,d=swing?(x%2?bd/3:bd*2/3):bd/2;tone(bus.lead,m,t,last?bd*2:d*.95,.32,'lead');t+=d;});
@@ -660,11 +693,19 @@ function playLine(pitches,swing){
 
 /* ---------- events ---------- */
 $('#prog').onchange=e=>loadProg(PROGS.find(p=>p.id===e.target.value));
-$('#key').onchange=e=>{S.key=+e.target.value;save();renderAll();};
+$('#key').onchange=e=>{S.key=+e.target.value;save();homePos();renderAll();};
 $('#reset').onclick=()=>{S.bars=parse(S.prog.c);S.sel={b:0,i:0};renderAll();};
 $('#chart').onclick=e=>{const el=e.target.closest('.ch');if(!el)return;S.sel={b:+el.dataset.b,i:+el.dataset.i};renderAll();};
 $('#tabs').onclick=e=>{const el=e.target.closest('.tab');if(!el)return;S.tab=el.dataset.tab;renderPanel();};
-$('#live').onclick=e=>{const el=e.target.closest('.chip');if(el) openSheet(el.dataset.scale,{r:+el.dataset.r,q:el.dataset.q});};
+$('#scales').onclick=e=>{const el=e.target.closest('.chip');if(!el)return;S.pick[heroCtx().fam]=el.dataset.scale;renderHero(true);};
+$('#posDown').onclick=()=>movePos(-1); $('#posUp').onclick=()=>movePos(1);
+$('#mode').onclick=e=>{const el=e.target.closest('button');if(!el)return;S.mode=el.dataset.mode;save();renderHero(true);};
+$('#hear').onclick=()=>{const h=heroCtx(),r=48+mod(pcOf(h.c)+(h.sc.from||0)),up=h.sc.s.map(v=>r+v);playLine([...up,r+12,...up.slice().reverse()],false);};
+{let sx=null,sy=0;const n=$('#neck');
+ n.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;});
+ n.addEventListener('pointerup',e=>{if(sx==null)return;const dx=e.clientX-sx,dy=e.clientY-sy;sx=null;if(Math.abs(dx)>32&&Math.abs(dx)>Math.abs(dy)*1.3)movePos(dx<0?1:-1);});
+ n.addEventListener('pointercancel',()=>{sx=null;});
+ n.addEventListener('keydown',e=>{if(e.key==='ArrowRight')movePos(1);if(e.key==='ArrowLeft')movePos(-1);});}
 $('#panel').onclick=e=>{
   const el=e.target.closest('button');if(!el)return;const d=el.dataset,{b,i}=S.sel;
   if(d.strum!=null){const v=voicings(selChord())[+d.strum];audio();let t=ctx.currentTime+.05;
@@ -673,19 +714,9 @@ $('#panel').onclick=e=>{
   else if(d.way!=null){const w=S.ways[+d.way];S.bars[b]=(w.four?[w.chs[0],w.chs[0],w.chs[1],w.chs[2]]:w.chs).map(c=>({...c}));renderAll();}
   else if(d.lick!=null){const x=S.licks[+d.lick];playLine(lickPitches(x.l,x.anchor,x.minorRes),true);}
 };
-$('#sheet').onclick=e=>{
-  if(e.target.id==='sheet'){$('#sheet').hidden=true;return;}
-  const el=e.target.closest('button');if(!el)return;const x=el.dataset.x,k=sheet.ps.indexOf(sheet.p);
-  if(x==='close'){$('#sheet').hidden=true;return;}
-  if(x==='down') sheet.p=sheet.ps[k-1]; if(x==='up') sheet.p=sheet.ps[k+1];
-  if(x==='mode') sheet.mode=sheet.mode==='fingers'?'notes':'fingers';
-  if(x==='hear'){const sc=SCALES[sheet.id];let r=48+mod(pcOf(sheet.c)+(sc.from||0));const up=sc.s.map(v=>r+v);playLine([...up,r+12,...up.slice().reverse()],false);return;}
-  drawSheet();
-};
 $('#play').onclick=()=>S.playing?stop():start();
 $('#tempo').oninput=e=>{S.tempo=+e.target.value;$('#bpm').textContent=S.tempo+' bpm';save();};
 $('#mix').onclick=e=>{const el=e.target.closest('button');if(!el)return;const m=el.dataset.m;S.mix[m]=!S.mix[m];el.setAttribute('aria-pressed',S.mix[m]);};
-document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#sheet').hidden=true;});
 
 $('#tempo').value=S.tempo;$('#bpm').textContent=S.tempo+' bpm';
 loadProg(S.prog,true);
