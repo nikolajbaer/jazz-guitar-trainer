@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jazz Guitar Woodshed</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a lead sheet on top, a practice notebook under it, the rhythm section docked at the bottom edge. */
+:root{
+  --paper:#eef1f7; --surface:#ffffff; --ink:#10203f; --muted:#586684; --line:#cdd5e5;
+  --blue:#1746c8; --blue-soft:#dfe7fb; --brass:#c98a1b; --brass-soft:#f8e6c2; --on-accent:#ffffff;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#0a1124; --surface:#121c37; --ink:#e7ecfa; --muted:#93a0c2; --line:#273659;
+  --blue:#86a4ff; --blue-soft:#1c2b57; --brass:#eab353; --brass-soft:#4a3a17; --on-accent:#0a1124; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --paper:#0a1124; --surface:#121c37; --ink:#e7ecfa; --muted:#93a0c2; --line:#273659;
+  --blue:#86a4ff; --blue-soft:#1c2b57; --brass:#eab353; --brass-soft:#4a3a17; --on-accent:#0a1124; color-scheme:dark }
+
+*{box-sizing:border-box}
+html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font:15px/1.45 var(--body)}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding-block:14px 150px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:18px}
+
+header{display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h1{font:800 34px/1 var(--display);letter-spacing:.02em;text-transform:uppercase;margin:0;color:var(--blue)}
+.brand span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.picks{display:grid;grid-template-columns:1fr auto;gap:8px}
+.picks label{display:flex;flex-direction:column;gap:3px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-width:0}
+select{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 8px;font-size:15px;min-width:0;max-width:100%}
+
+h2{font:800 20px/1.1 var(--display);letter-spacing:.04em;text-transform:uppercase;margin:0}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.link{background:none;border:0;padding:4px 0;color:var(--blue);font-size:13px;text-decoration:underline}
+
+/* lead sheet */
+.chart{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:2px solid var(--ink);border-left:2px solid var(--ink)}
+.bar{display:flex;min-width:0;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);background:var(--surface);position:relative;min-height:56px}
+.bar small{position:absolute;top:1px;left:3px;font:400 9px var(--mono);color:var(--muted);pointer-events:none}
+.ch{flex:1 1 0;min-width:0;background:none;border:0;padding:12px 2px 6px;font:800 22px/1 var(--display);letter-spacing:.01em;white-space:nowrap;border-radius:0}
+.ch i{font:600 .62em var(--display);font-style:normal;vertical-align:.35em;margin-left:1px}
+.bar.two .ch{font-size:17px}
+.bar.four .ch{font-size:13px}
+.ch.sel{box-shadow:inset 0 0 0 2px var(--blue);color:var(--blue)}
+.ch.now{background:var(--brass);color:var(--on-accent)}
+
+/* live strip */
+.live{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--brass);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.live p{margin:0;font-size:13px;color:var(--muted)}
+.live p b{font:800 18px var(--display);color:var(--ink);letter-spacing:.02em}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--blue-soft);color:var(--ink);border:1px solid transparent;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:500}
+.chip:active{border-color:var(--blue)}
+.chip.best{background:var(--blue);color:var(--on-accent)}
+
+/* notebook */
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:2px solid var(--ink)}
+.tab{background:none;border:0;padding:9px 2px;font:600 15px var(--display);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--on-accent);background:var(--ink)}
+:root .tab[aria-selected="true"]{color:var(--paper)}
+.panel{display:flex;flex-direction:column;gap:12px;padding-top:12px}
+.note{margin:0;font-size:13px;color:var(--muted);max-width:65ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.voic{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.voic span{font-size:11px;color:var(--muted);line-height:1.25}
+.voic svg{width:100%;max-width:120px;height:auto}
+.row{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
+.row h3{margin:0;font:800 18px var(--display);letter-spacing:.02em}
+.row h3 em{font:500 12px var(--body);font-style:normal;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-right:6px}
+.row p{margin:0;font-size:13px;color:var(--muted);grid-column:1}
+.use{grid-row:1/span 2;grid-column:2;background:var(--blue);color:var(--on-accent);border:0;border-radius:6px;padding:9px 12px;font-weight:600;font-size:13px}
+.ghost{background:none;border:1px solid var(--blue);color:var(--blue);border-radius:6px;padding:7px 11px;font-size:13px;font-weight:600}
+.vl{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.vl b{font-family:var(--mono);font-weight:500}
+.pair{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;max-width:320px}
+.pair > b{font:800 22px var(--display);color:var(--brass)}
+h4{margin:6px 0 0;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lick{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.lick header{flex-direction:row;justify-content:space-between;align-items:center;gap:8px}
+.lick h3{margin:0;font:800 17px var(--display);letter-spacing:.02em}
+.tabwrap{overflow-x:auto}
+pre{margin:0;font:400 12px/1.25 var(--mono);color:var(--ink)}
+
+/* chord + fretboard drawings */
+svg .ln{stroke:var(--ink);stroke-width:1;fill:none}
+svg .nut{stroke:var(--ink);stroke-width:3}
+svg .dot{fill:var(--ink)}
+svg .dot.rt{fill:var(--blue)}
+svg .dot.sc{fill:var(--surface);stroke:var(--ink);stroke-width:1.3}
+svg text{font:500 10px var(--mono);fill:var(--muted);text-anchor:middle}
+svg text.in{fill:var(--surface);font-weight:500}
+svg text.in.dk{fill:var(--ink)}
+
+/* rhythm section dock */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--ink);color:var(--paper);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.dock-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 12px;align-items:center}
+#play{grid-row:1/span 2;width:60px;height:60px;border-radius:50%;border:0;background:var(--brass);color:var(--ink);font:800 15px var(--display);letter-spacing:.06em;text-transform:uppercase}
+:root #play{color:#10203f}
+.tempo{display:flex;align-items:center;gap:10px;min-width:0}
+.tempo input{flex:1;min-width:0;accent-color:var(--brass)}
+.tempo output{font:500 13px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mix{display:flex;gap:6px;flex-wrap:wrap}
+.mix button{background:none;border:1px solid var(--muted);color:var(--paper);opacity:.55;border-radius:999px;padding:4px 11px;font-size:12px}
+.mix button[aria-pressed="true"]{opacity:1;border-color:var(--brass);color:var(--brass)}
+
+/* scale sheet */
+.sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;background:rgba(5,10,25,.55)}
+.sheet-in{background:var(--surface);color:var(--ink);width:100%;max-width:720px;max-height:92%;overflow:auto;border-top:4px solid var(--blue);
+  padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px}
+.sheet h2{font-size:26px}
+.sheet .notes{font:500 14px var(--mono);margin:0}
+.sheet .notes span{color:var(--muted);font-size:11px;display:block}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ctl output{font-size:13px;color:var(--muted)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;background:var(--ink)}
+.legend i.rt{background:var(--blue)} .legend i.sc{background:var(--surface);border:1.3px solid var(--ink)}
+.fb{width:100%;height:auto;max-width:520px}
+@media (prefers-reduced-motion: no-preference){ .ch{transition:background .08s} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><h1>Woodshed</h1><span>Jazz guitar practice</span></div>
+    <div class="picks">
+      <label for="prog">Changes<select id="prog"></select></label>
+      <label for="key">Key<select id="key"></select></label>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head"><h2 id="chartTitle">Chart</h2><button class="link" id="reset" hidden>Reset chart</button></div>
+    <p class="note" id="progNote" style="margin:4px 0 8px"></p>
+    <div class="chart" id="chart"></div>
+  </section>
+
+  <section class="live" id="live" aria-live="polite"></section>
+
+  <section>
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-tab="voic">Fingerings</button>
+      <button class="tab" role="tab" data-tab="subs">Subs</button>
+      <button class="tab" role="tab" data-tab="next">Next chord</button>
+      <button class="tab" role="tab" data-tab="licks">Licks</button>
+    </div>
+    <div class="panel" id="panel"></div>
+  </section>
+</div>
+
+<div class="dock">
+  <div class="dock-in">
+    <button id="play" aria-label="Play the changes">Play</button>
+    <div class="tempo"><input id="tempo" type="range" min="60" max="220" step="2" value="120" aria-label="Tempo"><output id="bpm">120 bpm</output></div>
+    <div class="mix" id="mix">
+      <button data-m="piano" aria-pressed="true">Piano</button>
+      <button data-m="bass" aria-pressed="true">Bass</button>
+      <button data-m="drums" aria-pressed="true">Drums</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden><div class="sheet-in" id="sheetIn" role="dialog" aria-modal="true"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const mod=n=>((n%12)+12)%12;
+const X=null;
+
+/* ---------- theory ---------- */
+const FLAT=['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+const SHARP={6:'F♯',1:'C♯',8:'G♯',3:'D♯',10:'A♯'};
+const KEY_SHARPS={7:[6],2:[6,1],9:[6,1,8],4:[6,1,8,3],11:[6,1,8,3,10]};
+const Q={
+  maj7:{sym:'maj7',iv:[0,4,7,11],g:[4,11],fam:'maj'},
+  '6':{sym:'6',iv:[0,4,7,9],g:[4,9],fam:'maj'},
+  '69':{sym:'6/9',iv:[0,4,7,9,14],g:[4,9],fam:'maj'},
+  '7':{sym:'7',iv:[0,4,7,10],g:[4,10],fam:'dom'},
+  '9':{sym:'9',iv:[0,4,7,10,14],g:[4,10],fam:'dom'},
+  '13':{sym:'13',iv:[0,4,10,14,21],g:[4,10],fam:'dom'},
+  '7b9':{sym:'7♭9',iv:[0,4,7,10,13],g:[4,10],fam:'alt'},
+  '7#9':{sym:'7♯9',iv:[0,4,7,10,15],g:[4,10],fam:'alt'},
+  '7alt':{sym:'7alt',iv:[0,4,10,15,20],g:[4,10],fam:'alt'},
+  '7sus4':{sym:'7sus',iv:[0,5,7,10],g:[5,10],fam:'sus'},
+  m7:{sym:'m7',iv:[0,3,7,10],g:[3,10],fam:'min'},
+  m9:{sym:'m9',iv:[0,3,7,10,14],g:[3,10],fam:'min'},
+  m6:{sym:'m6',iv:[0,3,7,9],g:[3,9],fam:'tmin'},
+  mMaj7:{sym:'m(maj7)',iv:[0,3,7,11],g:[3,11],fam:'tmin'},
+  m7b5:{sym:'m7♭5',iv:[0,3,6,10],g:[3,10],fam:'hdim'},
+  dim7:{sym:'°7',iv:[0,3,6,9],g:[3,9],fam:'dim'}
+};
+const isDom=c=>['dom','alt','sus'].includes(Q[c.q].fam);
+const isMinor=c=>['min','tmin'].includes(Q[c.q].fam);
+
+const SCALES={
+  ionian:{n:'Major (Ionian)',s:[0,2,4,5,7,9,11],w:'Home base. Go easy on the 4th, it rubs against the 3rd.'},
+  lydian:{n:'Lydian',s:[0,2,4,6,7,9,11],w:'Raises the 4th so every note can ring over the chord. The modern major sound.'},
+  majpent:{n:'Major pentatonic',s:[0,2,4,7,9],w:'No avoid notes at all. Gives a 6/9 sound.'},
+  majbebop:{n:'Major bebop',s:[0,2,4,5,7,8,9,11],w:'Adds a passing ♯5 so chord tones land on the beat in eighth-note lines.'},
+  mixo:{n:'Mixolydian',s:[0,2,4,5,7,9,10],w:'The plain dominant scale. Start here.'},
+  dombebop:{n:'Bebop dominant',s:[0,2,4,5,7,9,10,11],w:'Mixolydian plus a passing natural 7. Play it downward from the root.'},
+  lyddom:{n:'Lydian dominant',s:[0,2,4,6,7,9,10],w:'♯11 colour. Best on dominants that do not resolve down a fifth, and on tritone subs.'},
+  blues:{n:'Blues scale',s:[0,3,5,6,7,10],w:'Minor pentatonic plus the ♭5. Works over the whole blues form.'},
+  majblues:{n:'Major blues',s:[0,2,3,4,7,9],w:'Major pentatonic plus the ♭3. Sweeter than the minor blues scale.'},
+  hwdim:{n:'Half–whole diminished',s:[0,1,3,4,6,7,9,10],w:'♭9, ♯9 and ♯11 with a natural 13. Great on 7♭9 and 13♭9.'},
+  altered:{n:'Altered',s:[0,1,3,4,6,8,10],w:'Every tension altered. Use it on a V7 that resolves to its I, especially in minor.'},
+  phrdom:{n:'Phrygian dominant',s:[0,1,4,5,7,8,10],w:'Harmonic minor of the chord you are resolving to. The classic minor-key V sound.'},
+  whole:{n:'Whole tone',s:[0,2,4,6,8,10],w:'♯5 and ♯11 with a natural 9. Floating and ambiguous.'},
+  dorian:{n:'Dorian',s:[0,2,3,5,7,9,10],w:'The default minor 7 scale. The natural 6 keeps it bright.'},
+  minpent:{n:'Minor pentatonic',s:[0,3,5,7,10],w:'Five safe notes you already know from blues and rock.'},
+  aeolian:{n:'Natural minor (Aeolian)',s:[0,2,3,5,7,8,10],w:'Darker than Dorian. Fits a minor chord acting as vi or as the tonic.'},
+  melmin:{n:'Melodic minor',s:[0,2,3,5,7,9,11],w:'The jazz tonic-minor sound, with natural 6 and 7.'},
+  harmin:{n:'Harmonic minor',s:[0,2,3,5,7,8,11],w:'Keeps the leading tone but with a dark ♭6.'},
+  locrian:{n:'Locrian',s:[0,1,3,5,6,8,10],w:'The scale the chord comes from. Avoid sitting on the ♭2.'},
+  loc2:{n:'Locrian ♮2',s:[0,2,3,5,6,8,10],w:'Sixth mode of melodic minor. The natural 9 is a prettier colour.'},
+  whdim:{n:'Whole–half diminished',s:[0,2,3,5,6,8,9,11],w:'Chord tones plus a whole step above each one.'},
+  pent5:{n:'Minor pentatonic from the 5th',s:[0,3,5,7,10],from:7,w:'Outlines the sus sound: 5, ♭7, root, 9, 4.'}
+};
+const FAM_SCALES={
+  maj:['ionian','lydian','majpent','majbebop'],
+  dom:['mixo','dombebop','blues','majblues','lyddom','hwdim'],
+  alt:['altered','hwdim','phrdom','whole'],
+  sus:['mixo','pent5'],
+  min:['dorian','minpent','blues','aeolian'],
+  tmin:['melmin','dorian','harmin','minpent'],
+  hdim:['locrian','loc2'],
+  dim:['whdim']
+};
+
+/* voicing shapes: fret offsets from the root fret, strings low E to high e; fingers 0 = not played */
+const SHAPES={
+  maj7:[[6,'shell',[0,X,1,1,X,X],[1,0,2,3,0,0]],[6,'',[0,X,1,1,0,X],[1,0,3,4,2,0]],[5,'',[X,0,2,1,2,X],[0,1,3,2,4,0]],[4,'',[X,X,0,2,2,2],[0,0,1,3,3,3]]],
+  '6':[[6,'',[0,X,-1,1,0,X],[2,0,1,4,3,0]],[5,'',[X,0,-1,-1,-2,X],[0,4,2,3,1,0]],[4,'',[X,X,0,2,0,2],[0,0,1,3,1,4]]],
+  '69':[[5,'',[X,0,-1,-1,0,0],[0,2,1,1,3,4]],[6,'',[0,-1,-1,-1,0,0],[2,1,1,1,3,4]]],
+  '7':[[6,'shell',[0,X,0,1,X,X],[1,0,2,3,0,0]],[6,'',[0,X,0,1,0,X],[1,0,1,2,1,0]],[5,'',[X,0,2,0,2,X],[0,1,3,1,4,0]],[4,'',[X,X,0,2,1,2],[0,0,1,3,2,4]]],
+  '9':[[5,'',[X,0,-1,0,0,X],[0,2,1,3,3,0]],[6,'',[0,X,0,1,0,2],[1,0,1,2,1,4]]],
+  '13':[[6,'',[0,X,0,1,2,X],[1,0,2,3,4,0]],[5,'',[X,0,-1,0,0,2],[0,2,1,3,3,4]]],
+  '7b9':[[5,'',[X,0,-1,0,-1,X],[0,2,1,3,1,0]],[6,'',[0,X,0,1,0,1],[1,0,1,2,1,3]]],
+  '7#9':[[5,'',[X,0,-1,0,1,X],[0,2,1,3,4,0]],[6,'♭13',[0,X,0,1,1,X],[1,0,1,2,3,0]]],
+  '7alt':[[5,'♯9 ♯5',[X,0,-1,0,1,1],[0,2,1,3,4,4]],[6,'♭13',[0,X,0,1,1,X],[1,0,1,2,3,0]],[5,'♭9',[X,0,-1,0,-1,X],[0,2,1,3,1,0]]],
+  '7sus4':[[6,'',[0,X,0,2,0,X],[1,0,1,3,1,0]],[5,'',[X,0,2,0,3,X],[0,1,3,1,4,0]]],
+  m7:[[6,'shell',[0,X,0,0,X,X],[2,0,3,4,0,0]],[6,'',[0,X,0,0,0,X],[2,0,3,3,3,0]],[5,'',[X,0,2,0,1,X],[0,1,3,1,2,0]],[4,'',[X,X,0,2,1,1],[0,0,1,3,2,2]]],
+  m9:[[5,'',[X,0,-2,0,0,X],[0,2,1,3,4,0]],[6,'',[0,X,0,0,0,2],[1,0,1,1,1,4]]],
+  m6:[[6,'',[0,X,-1,0,0,X],[2,0,1,3,4,0]],[5,'',[X,0,-2,-1,-2,X],[0,4,1,2,1,0]],[4,'',[X,X,0,2,0,1],[0,0,1,3,1,2]]],
+  mMaj7:[[6,'',[0,X,1,0,0,X],[1,0,2,1,1,0]],[5,'',[X,0,2,1,1,X],[0,1,4,2,3,0]]],
+  m7b5:[[6,'',[0,X,0,0,-1,X],[2,0,3,4,1,0]],[5,'',[X,0,1,0,1,X],[0,1,3,2,4,0]],[4,'',[X,X,0,1,1,1],[0,0,1,2,2,2]]],
+  dim7:[[6,'',[0,X,-1,0,-1,X],[2,0,1,3,1,0]],[5,'',[X,0,1,-1,1,X],[0,2,3,1,4,0]],[4,'',[X,X,0,1,0,1],[0,0,1,3,2,4]]]
+};
+const OPEN=[40,45,50,55,59,64];
+const ORD={6:'6th',5:'5th',4:'4th'};
+
+/* licks: semitone offsets from the anchor root, all swung eighths, then one held note */
+const LICKS=[
+  {fam:['dom','sus'],name:'Bebop scale descent',tip:'The passing natural 7 keeps chord tones on the beat.',n:[12,11,10,9,7,5,4,2],end:0},
+  {fam:['dom','alt'],name:'3rd up to the ♭9',tip:'Arpeggiate 3–5–♭7–♭9, then fall back down the scale.',n:[4,7,10,13,12,10,9,7],end:4},
+  {fam:['dom'],name:'Enclose the 3rd',tip:'Surround the 3rd from above and below before you land on it.',n:[5,3,4,7,10,9,7,5],end:4},
+  {fam:['dom'],name:'Major blues climb',tip:'♭3 sliding into the 3rd. Try it as a hammer-on.',n:[3,4,7,9,12,9,7,4],end:0},
+  {fam:['dom','min'],name:'Blues scale answer',tip:'Blues scale coming down, with the ♭5 as a passing note.',n:[12,10,7,6,5,3,0,3],end:0},
+  {fam:['alt'],name:'Altered run',tip:'♯9 ♭9 root ♭7 ♭13 ♭5 3 ♭9, settling on the root, which is the 5th of the chord you resolve to.',n:[15,13,12,10,8,6,4,1],end:0},
+  {fam:['min'],name:'Minor 9 arpeggio',tip:'Straight up the chord to the 9th, then back through the scale.',n:[0,3,7,10,14,12,10,7],end:3},
+  {fam:['min'],name:'Dorian with the natural 6',tip:'The 6th is the note that says Dorian. Lean on it.',n:[0,2,3,7,10,9,7,5],end:3},
+  {fam:['min','tmin'],name:'Minor pentatonic descent',tip:'Start on the ♭3 an octave up and walk home.',n:[15,12,10,7,5,3,5,3],end:0},
+  {fam:['tmin'],name:'Melodic minor rise',tip:'Natural 6 and 7 on the way up to the 9th.',n:[0,2,3,5,7,9,11,14],end:12},
+  {fam:['maj'],name:'Maj9 arpeggio from the 3rd',tip:'3–5–7–9 is a minor 7 arpeggio built on the 3rd.',n:[4,7,11,14,12,11,9,7],end:4},
+  {fam:['maj'],name:'Major pentatonic (6/9 sound)',tip:'Up from the 5th and back. No avoid notes.',n:[7,9,12,14,16,14,12,9],end:7},
+  {fam:['maj'],name:'Lydian colour',tip:'The ♯4 leans into the 5th.',n:[16,18,19,16,14,11,12,9],end:7},
+  {fam:['hdim'],name:'Half-diminished arpeggio',tip:'Up the chord, down the Locrian scale.',n:[0,3,6,10,8,6,5,3],end:0},
+  {fam:['dim'],name:'Diminished arpeggio',tip:'Stacked minor 3rds. The same fingering repeats every three frets.',n:[0,3,6,9,12,9,6,3],end:0},
+  {fam:['sus'],name:'Sus pentatonic',tip:'Major pentatonic a whole step below the root.',n:[10,12,14,17,19,17,14,12],end:10},
+  {chg:'251',name:'ii–V–I: arpeggio, then 3 to ♭9',tip:'Bar 2 starts on the 3rd of the V chord, a half step under the last chord tone of bar 1.',
+    n:[0,3,7,10,14,12,10,7, 9,12,15,18,17,15,14,12],end:10,segs:[[0,0,'m7'],[8,5,'7b9'],[16,10,'maj7']]},
+  {chg:'251',name:'ii–V–I: down the scale',tip:'One scale, three chords. Aim the 7th of ii at the 3rd of V.',
+    n:[7,10,14,17,15,14,12,10, 9,7,5,3,2,5,9,12],end:14,segs:[[0,0,'m7'],[8,5,'7'],[16,10,'maj7']]},
+  {chg:'m251',name:'Minor ii–V–i',tip:'Half-diminished arpeggio up, 7♭9 arpeggio down, resolve up a half step to the ♭3.',
+    n:[0,3,6,10,12,15,18,15, 17,15,12,9,6,5,3,0],end:1,segs:[[0,0,'m7b5'],[8,5,'7b9'],[16,10,'m6']]},
+  {chg:'51',name:'V–I: ♭9 down to the 3rd',tip:'A 7♭9 arpeggio falling into the 3rd of the next chord.',
+    n:[24,25,22,19,16,13,12,10],end:9,endMin:8,segs:[[0,0,'7b9'],[8,5,'*']]},
+  {chg:'turn',name:'Turnaround: 3 to ♭9 on each dominant',tip:'Two beats per chord. Each dominant gets a 3–5–♭7–♭9 arpeggio.',
+    n:[16,12,9,7, 13,16,19,22, 21,17,14,12, 11,14,17,20],end:19,segs:[[0,0,'6'],[4,9,'7b9'],[8,2,'m7'],[12,7,'7b9'],[16,0,'6']]},
+  {chg:'14',name:'Blues: I7 into IV7',tip:'Mixolydian on the I, then an arpeggio of the IV with its ♭7 on top.',
+    n:[0,4,7,9,10,9,7,4, 5,9,12,15,14,12,9,5],end:3,segs:[[0,0,'7'],[8,5,'7']]}
+];
+
+/* progressions, written in C */
+const RC_A='Cmaj7 A7 | Dm7 G7 | Em7 A7 | Dm7 G7 | Gm7 C7 | Fmaj7 F#dim7 | Em7 A7 | Dm7 G7';
+const AL_A='Fm7 | Bb7 | Ebmaj7 | Abmaj7 | Dm7b5 | G7b9 | Cm6 | Cm6';
+const PROGS=[
+  {id:'blues',g:'Blues',n:'Basic 12-bar blues',key:5,blues:1,note:'Three dominant chords. Learn every lick here first.',c:'C7|F7|C7|C7|F7|F7|C7|C7|G7|F7|C7|G7'},
+  {id:'jblues',g:'Blues',n:'Jazz blues',key:5,blues:1,note:'Adds a ii–V into bar 5, a passing diminished in bar 6 and a turnaround.',c:'C7|F7|C7|Gm7 C7|F7|F#dim7|C7|Em7b5 A7b9|Dm7|G7|C7 A7|Dm7 G7'},
+  {id:'bird',g:'Blues',n:'Bird blues',key:5,blues:1,note:'Parker-style changes: a chain of ii–Vs falling toward the IV chord and back.',c:'Cmaj7|Bm7b5 E7|Am7 D7|Gm7 C7|F7|Fm7 Bb7|Em7 A7|Ebm7 Ab7|Dm7|G7|Cmaj7 A7|Dm7 G7'},
+  {id:'mblues',g:'Blues',n:'Minor blues',key:0,minor:1,blues:1,note:'♭VI7 to V7 in bars 9 and 10 is the signature move.',c:'Cm7|Fm7|Cm7|Cm7|Fm7|Fm7|Cm7|Cm7|Ab7|G7alt|Cm7|Dm7b5 G7alt'},
+  {id:'251',g:'Cadences',n:'Major ii–V–I',key:0,note:'The most common cadence in jazz. Practise it in all twelve keys.',c:'Dm7|G7|Cmaj7|Cmaj7'},
+  {id:'m251',g:'Cadences',n:'Minor ii–V–i',key:0,minor:1,note:'Half-diminished, altered dominant, tonic minor.',c:'Dm7b5|G7alt|Cm6|Cm6'},
+  {id:'turn',g:'Cadences',n:'I–VI–ii–V turnaround',key:0,note:'Two beats per chord. The last four bars of countless tunes.',c:'Cmaj7 A7|Dm7 G7|Em7 A7|Dm7 G7'},
+  {id:'rc',g:'Standard forms',n:'Rhythm changes (AABA)',key:10,note:'32 bars. The bridge is a cycle of dominants, two bars each.',c:[RC_A,RC_A,'E7|E7|A7|A7|D7|D7|G7|G7',RC_A].join('|')},
+  {id:'leaves',g:'Standard forms',n:'Autumn Leaves changes',key:7,minor:1,note:'A major ii–V–I followed by a minor ii–V–i in the relative minor.',c:[AL_A,AL_A,'Dm7b5|G7b9|Cm6|Cm6|Fm7|Bb7|Ebmaj7|Abmaj7|Dm7b5|G7b9|Cm7 F7|Bbm7 Eb7|Abmaj7|G7b9|Cm6|Cm6'].join('|')},
+  {id:'atrain',g:'Standard forms',n:'A Train changes (A section)',key:0,note:'The II7 in bars 3 and 4 wants Lydian dominant.',c:'C6|C6|D9|D9|Dm7|G7|C6|Dm7 G7'},
+  {id:'modal',g:'Standard forms',n:'Modal: 16 + 8 up a half step + 8',key:2,minor:1,note:'One chord for a long time. Practise building a solo from one scale.',c:Array(16).fill('Cm7').concat(Array(8).fill('Dbm7'),Array(8).fill('Cm7')).join('|')}
+];
+const LET={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+function parse(str){
+  return str.split('|').map(b=>b.trim().split(/\s+/).map(t=>{
+    const m=t.match(/^([A-G])([b#]?)(.*)$/);
+    return {r:mod(LET[m[1]]+(m[2]==='b'?-1:m[2]==='#'?1:0)),q:m[3]||'6'};
+  }));
+}
+
+/* ---------- state ---------- */
+const S={prog:PROGS[1],key:5,bars:[],sel:{b:0,i:0},tab:'voic',cur:-1,tempo:120,mix:{piano:true,bass:true,drums:true},playing:false,subs:[],ways:[],licks:[]};
+try{const t=JSON.parse(localStorage.getItem('woodshed')||'{}');
+  if(t.prog){const p=PROGS.find(x=>x.id===t.prog); if(p){S.prog=p;S.key=p.key;}}
+  if(Number.isInteger(t.key)) S.key=mod(t.key); if(t.tempo) S.tempo=Math.min(220,Math.max(60,t.tempo));
+}catch(e){}
+const save=()=>{try{localStorage.setItem('woodshed',JSON.stringify({prog:S.prog.id,key:S.key,tempo:S.tempo}))}catch(e){}};
+
+function nm(pc){pc=mod(pc); const sig=mod(S.key+(S.prog.minor?3:0)); return (KEY_SHARPS[sig]||[]).includes(pc)?SHARP[pc]:FLAT[pc];}
+const pcOf=c=>mod(S.key+c.r);
+const cname=c=>nm(pcOf(c))+Q[c.q].sym;
+const chtml=c=>`${nm(pcOf(c))}<i>${Q[c.q].sym}</i>`;
+const C=(r,q)=>({r:mod(r),q});
+function flat(){const list=[];let beat=0;S.bars.forEach((bar,b)=>{const len=4/bar.length;bar.forEach((c,i)=>{list.push({b,i,c,start:beat,len});beat+=len;});});return {list,total:beat};}
+function around(b,i){const {list}=flat();const k=list.findIndex(e=>e.b===b&&e.i===i);const n=list.length;
+  return {prev:list[(k-1+n)%n].c,next:list[(k+1)%n].c,next2:list[(k+2)%n].c,k};}
+const selChord=()=> (S.bars[S.sel.b]||[])[S.sel.i] || S.bars[0][0];
+
+/* ---------- drawings ---------- */
+function buildV(c,sh){
+  const [str,label,o,f]=sh, si={6:0,5:1,4:2}[str];
+  let r=mod(pcOf(c)-OPEN[si]); const mn=Math.min(...o.filter(x=>x!=null)); if(r+mn<1) r+=12;
+  const frets=o.map(x=>x==null?null:r+x), used=frets.filter(x=>x!=null);
+  return {frets,fing:f,root:si,label:`Root on ${ORD[str]} string${label?' · '+label:''}`,pos:used.reduce((a,b)=>a+b,0)/used.length};
+}
+const voicings=c=>SHAPES[c.q].map(sh=>buildV(c,sh));
+function chordSvg(v){
+  const fr=v.frets.filter(x=>x!=null), lo=Math.min(...fr), hi=Math.max(...fr);
+  const base=hi<=4?1:lo, rows=Math.max(4,hi-base+1), x0=16,dx=15,y0=20,dy=19, H=y0+rows*dy+6;
+  let s=`<svg viewBox="0 0 124 ${H}" role="img" aria-label="Chord diagram, frets ${v.frets.map(x=>x==null?'x':x).join(' ')}">`;
+  for(let i=0;i<6;i++) s+=`<path class="ln" d="M${x0+i*dx} ${y0}V${y0+rows*dy}"/>`;
+  for(let r=0;r<=rows;r++) s+=`<path class="${r===0&&base===1?'nut':'ln'}" d="M${x0} ${y0+r*dy}H${x0+5*dx}"/>`;
+  if(base>1) s+=`<text x="${x0+5*dx+15}" y="${y0+dy*.7}">${base}fr</text>`;
+  v.frets.forEach((f,i)=>{const x=x0+i*dx;
+    if(f==null){s+=`<text x="${x}" y="${y0-6}">×</text>`;return;}
+    const y=y0+(f-base+.5)*dy;
+    s+=`<circle class="dot${i===v.root?' rt':''}" cx="${x}" cy="${y}" r="6.6"/><text class="in" x="${x}" y="${y+3.5}">${v.fing[i]||''}</text>`;});
+  return s+'</svg>';
+}
+function scalePcs(c,sc){const base=pcOf(c)+(sc.from||0);return sc.s.map(x=>mod(base+x));}
+function positions(pcs){const out=[];for(let f=1;f<=12;f++) if(pcs.includes(mod(4+f))) out.push(f);return out;}
+function fretboardSvg(c,sc,p,mode){
+  const pcs=scalePcs(c,sc), root=pcOf(c), tones=Q[c.q].iv.map(x=>mod(root+x));
+  const L=30,fw=62,sy=24,y0=16,W=L+5*fw+10,H=y0+5*sy+34;
+  let s=`<svg class="fb" viewBox="0 0 ${W} ${H}" role="img" aria-label="${sc.n} fingering at fret ${p}">`;
+  for(let j=0;j<=5;j++) s+=`<path class="ln" d="M${L+j*fw} ${y0}V${y0+5*sy}"/>`;
+  'EADGBe'.split('').forEach((nme,i)=>{const y=y0+(5-i)*sy;
+    s+=`<path class="ln" d="M${L} ${y}H${L+5*fw}"/><text x="12" y="${y+3.5}">${nme}</text>`;});
+  for(let j=0;j<5;j++) s+=`<text x="${L+(j+.5)*fw}" y="${y0+5*sy+24}">${p+j}</text>`;
+  for(let i=0;i<6;i++){
+    let offs=[];for(let o=0;o<5;o++) if(pcs.includes(mod(OPEN[i]+p+o))) offs.push(o);
+    if(i===3) offs=offs.filter(o=>o!==4);
+    const wide=offs.includes(0)&&offs.includes(4);
+    offs.forEach(o=>{
+      const pc=mod(OPEN[i]+p+o);
+      let fg; if(wide) fg=o===0?1:o===4?4:(o===1?2:o===3?3:(offs.includes(1)?3:2));
+      else if(offs.includes(4)) fg=o; else fg=o+1;
+      const cls=pc===root?'rt':tones.includes(pc)?'':'sc';
+      const x=L+(o+.5)*fw,y=y0+(5-i)*sy;
+      s+=`<circle class="dot ${cls}" cx="${x}" cy="${y}" r="10"/><text class="in${cls==='sc'?' dk':''}" x="${x}" y="${y+3.5}">${mode==='notes'?nm(pc):fg}</text>`;});
+  }
+  return s+'</svg>';
+}
+
+/* tab */
+function place(p){
+  for(const w of [4,5,6]) for(let base=1;base<=14;base++){
+    const out=[];let ok=true;
+    for(const n of p){let best=null;for(let s=0;s<6;s++){const f=n-OPEN[s];if(f>=base&&f<=base+w&&(!best||f<best.f)) best={s,f};}
+      if(!best){ok=false;break;} out.push(best);}
+    if(ok) return out;
+  }
+  return p.map(n=>{let s=5;while(s>0&&n-OPEN[s]<0)s--;return {s,f:Math.max(0,n-OPEN[s])};});
+}
+function lickPitches(lk,anchorPc,minorRes){
+  const offs=[...lk.n,(minorRes&&lk.endMin!=null)?lk.endMin:lk.end];
+  let root=36+anchorPc; while(root+Math.min(...offs)<45) root+=12;
+  return offs.map(o=>root+o);
+}
+function tabText(lk,anchorPc,labels,minorRes){
+  const pos=place(lickPitches(lk,anchorPc,minorRes));
+  const lines=['e|','B|','G|','D|','A|','E|']; let lab='  '; const marks={};labels.forEach(l=>marks[l[0]]=l[1]);
+  pos.forEach((pt,k)=>{
+    if(k>0&&k%8===0){for(let i=0;i<6;i++) lines[i]+='|'; lab+=' ';}
+    if(marks[k]!=null){lab=lab.padEnd(lines[0].length,' ')+marks[k];}
+    const cell=(pt.f<10?'-':'')+pt.f+'-';
+    for(let i=0;i<6;i++) lines[i]+=(5-i===pt.s)?cell:'---';
+  });
+  for(let i=0;i<6;i++) lines[i]+='--|';
+  return lab+'\n'+lines.join('\n');
+}
+
+/* ---------- ideas ---------- */
+function step(d){d=mod(d);if(d>6)d-=12;const a=Math.abs(d);
+  const w=['stays put','a half step','a whole step','a minor 3rd','a major 3rd','a 4th','a tritone'][a];
+  return a===0?w:(d<0?'down ':'up ')+w;}
+function guideLines(c,n){
+  const lab=['3rd','7th'], out=[];
+  Q[c.q].g.forEach((g,gi)=>{
+    const a=pcOf(c)+g; let best=null;
+    Q[n.q].g.forEach((h,hi)=>{let d=mod(pcOf(n)+h-a);if(d>6)d-=12;if(!best||Math.abs(d)<Math.abs(best.d)) best={d,hi};});
+    const gl=Q[c.q].fam==='sus'&&gi===0?'4th':(g===9?'6th':lab[gi]), hl=Q[n.q].g[best.hi]===9?'6th':(Q[n.q].fam==='sus'&&best.hi===0?'4th':lab[best.hi]);
+    out.push(`<li><b>${nm(a)} → ${nm(a+best.d)}</b> &nbsp;${gl} of ${cname(c)} ${best.d===0?'stays and becomes':'moves '+step(best.d)+' to'} the ${hl} of ${cname(n)}</li>`);
+  });
+  return out.join('');
+}
+function subsFor(c,b,i){
+  const out=[], fam=Q[c.q].fam, {next}=around(b,i), solo=S.bars[b].length===1, p=pcOf(c);
+  const add=(t,why,chs)=>out.push({t,why,chs});
+  const colours=(list,why)=>list.filter(q=>q!==c.q).forEach(q=>add('Colour',why[q],[C(c.r,q)]));
+  if(isDom(c)){
+    add('Tritone sub',`${nm(p+4)} and ${nm(p+10)} are the 3rd and 7th of both chords, just swapped. The bass now slides down by half step.`,[C(c.r+6,'7')]);
+    if(solo) add('Add the related ii',`Split the bar into a ii–V. More motion, same destination.`,[C(c.r+7,'m7'),c]);
+    if(solo) add('Tritone ii–V',`The ii–V a tritone away. Everything slips in from a half step above.`,[C(c.r+1,'m7'),C(c.r+6,'7')]);
+    if(mod(next.r-c.r)===5) add('Backdoor dominant',`♭VII7 of ${cname(next)}. Resolves up a whole step with a softer, bluesy pull.`,[C(c.r+3,'7')]);
+    add('Diminished a half step up',`${nm(p+1)}°7 is ${nm(p)}7♭9 without its root.`,[C(c.r+1,'dim7')]);
+    colours(['9','13','7b9','7alt','7sus4','7'],{'9':'Adds the 9th. Smooth and full.','13':'9th and 13th. The big-band dominant.','7b9':'Darker tension that pulls hard toward the next chord.','7alt':'Altered 5ths and 9ths. Strongest pull, best when resolving down a fifth.','7sus4':'Suspends the 3rd. Open and modern.','7':'Back to the plain dominant.'});
+  } else if(fam==='min'){
+    add('Make it dominant',`${nm(p)}7 instead of ${cname(c)}. A secondary dominant with more pull.`,[C(c.r,'7')]);
+    add('Relative major',`${nm(p+3)}maj7 has the ♭3, 5, ♭7 and 9 of ${nm(p)} minor. Over a ${nm(p)} bass it is ${nm(p)}m9.`,[C(c.r+3,'maj7')]);
+    add('Half-diminished',`Borrowed from the minor key. Sets up a 7♭9 nicely.`,[C(c.r,'m7b5')]);
+    colours(['m9','m6','m7'],{m9:'Adds the 9th. Lush.',m6:'Tonic minor colour with the natural 6.',m7:'Back to the plain minor 7.'});
+  } else if(fam==='tmin'){
+    add('Relative major',`${nm(p+3)}maj7 shares three notes with ${nm(p)}m7.`,[C(c.r+3,'maj7')]);
+    colours(['m6','mMaj7','m7','m9'],{m6:'Natural 6. The classic tonic minor.',mMaj7:'Natural 7. Tense, film-noir minor.',m7:'Softer, less final.',m9:'Minor 7 with the 9th.'});
+  } else if(fam==='maj'){
+    add('iii minor',`${nm(p+4)}m7 is ${nm(p)}maj9 without the root.`,[C(c.r+4,'m7')]);
+    add('Relative minor',`${nm(p+9)}m7 shares three notes with ${nm(p)}6.`,[C(c.r+9,'m7')]);
+    add('Dominant tonic',`Turns the I chord bluesy and makes it lean toward the IV.`,[C(c.r,'7')]);
+    colours(['maj7','6','69'],{maj7:'The standard jazz tonic.','6':'Sweeter and more settled. Good when the melody is the root.','69':'Open and pentatonic.'});
+  } else if(fam==='hdim'){
+    add('iv minor 6',`${nm(p+3)}m6 has exactly the same four notes.`,[C(c.r+3,'m6')]);
+    add('Plain minor 7',`Brighter, as in a major-key ii–V.`,[C(c.r,'m7')]);
+  } else if(fam==='dim'){
+    add('Dominant 7♭9',`${cname(c)} is ${nm(p+8)}7♭9 without its root.`,[C(c.r+8,'7b9')]);
+    add('Same chord, up a minor 3rd',`A diminished 7 repeats every three frets. Any of its notes can be the root.`,[C(c.r+3,'dim7')]);
+  }
+  return out;
+}
+function waysTo(c,b,i){
+  const out=[], {next}=around(b,i); if(S.bars[b].length!==1) return null;
+  if(!(isDom(c)&&mod(c.r-next.r)===7)) out.push({t:'Secondary dominant',why:`Play the V7 of ${cname(next)} on beats 3 and 4.`,chs:[c,C(next.r+7,'7')]});
+  if(mod(c.r-next.r)!==1) out.push({t:'Half step from above',why:`A dominant one fret above ${cname(next)}, sliding down into it.`,chs:[c,C(next.r+1,'7')]});
+  if(mod(next.r-c.r)===2) out.push({t:'Passing diminished',why:`Fills the whole step between the two roots.`,chs:[c,C(c.r+1,'dim7')]});
+  out.push({t:'ii–V into it',why:`Leave ${cname(c)} for two beats, then a quick ii–V aimed at ${cname(next)}.`,
+    chs:[c,C(next.r+2,isMinor(next)?'m7b5':'m7'),C(next.r+7,isMinor(next)?'7b9':'7')].slice(0,3),four:true});
+  return out;
+}
+function licksFor(c,b,i){
+  const {prev,next,k}=around(b,i), {list}=flat(), out=[], fam=Q[c.q].fam;
+  const chg=(id,anchor,title,minorRes,resQ)=>LICKS.filter(l=>l.chg===id).forEach(l=>out.push({l,anchor:mod(S.key+anchor),title,minorRes,
+    labels:l.segs.map(([at,r,q])=>[at,nm(S.key+anchor+r)+Q[q==='*'?resQ:q].sym])}));
+  if(fam==='min'&&isDom(next)&&mod(next.r-c.r)===5) chg('251',c.r,'Over this ii–V');
+  if(isDom(c)&&Q[prev.q].fam==='min'&&mod(c.r-prev.r)===5) chg('251',prev.r,'Over the ii–V this chord belongs to');
+  if(fam==='hdim'&&isDom(next)&&mod(next.r-c.r)===5) chg('m251',c.r,'Over this minor ii–V');
+  if(isDom(c)&&Q[prev.q].fam==='hdim'&&mod(c.r-prev.r)===5) chg('m251',prev.r,'Over the minor ii–V this chord belongs to');
+  if(isDom(c)&&mod(next.r-c.r)===5){
+    if(isDom(next)) chg('14',c.r,`Into ${cname(next)}`);
+    else chg('51',c.r,`Resolving to ${cname(next)}`,isMinor(next),next.q);
+  }
+  if(fam==='maj'&&isDom(next)&&mod(next.r-c.r)===9&&list[k].len===2) chg('turn',c.r,'Over the turnaround');
+  LICKS.filter(l=>l.fam&&l.fam.includes(fam)).forEach(l=>out.push({l,anchor:pcOf(c),title:`Over ${cname(c)}`,labels:[[0,cname(c)]]}));
+  return out;
+}
+
+/* ---------- render ---------- */
+function renderPickers(){
+  const groups={};PROGS.forEach(p=>(groups[p.g]=groups[p.g]||[]).push(p));
+  $('#prog').innerHTML=Object.entries(groups).map(([g,ps])=>`<optgroup label="${g}">${ps.map(p=>`<option value="${p.id}"${p===S.prog?' selected':''}>${p.n}</option>`).join('')}</optgroup>`).join('');
+  $('#key').innerHTML=FLAT.map((n,i)=>`<option value="${i}"${i===S.key?' selected':''}>${n}${S.prog.minor?' minor':''}</option>`).join('');
+}
+function renderChart(){
+  const f=flat();
+  $('#chartTitle').textContent=`${S.prog.n} in ${FLAT[S.key]}${S.prog.minor?' minor':''}`;
+  $('#progNote').textContent=S.prog.note+' Tap any chord to study it.';
+  $('#chart').innerHTML=S.bars.map((bar,b)=>`<div class="bar${bar.length===2?' two':bar.length>2?' four':''}"><small>${b+1}</small>${bar.map((c,i)=>{
+    const k=f.list.findIndex(e=>e.b===b&&e.i===i);
+    return `<button class="ch${S.sel.b===b&&S.sel.i===i?' sel':''}${k===S.cur?' now':''}" data-b="${b}" data-i="${i}" data-k="${k}">${chtml(c)}</button>`;}).join('')}</div>`).join('');
+  $('#reset').hidden=JSON.stringify(S.bars)===JSON.stringify(parse(S.prog.c));
+}
+let liveKey='';
+function renderLive(force){
+  const f=flat(), playing=S.playing&&S.cur>=0&&f.list[S.cur];
+  const c=playing?f.list[S.cur].c:selChord();
+  const nxt=playing?f.list[(S.cur+1)%f.list.length].c:around(S.sel.b,S.sel.i).next;
+  const key=(playing?'p':'s')+c.r+c.q+nxt.r+nxt.q+S.key;
+  if(key===liveKey&&!force) return; liveKey=key;
+  const ids=FAM_SCALES[Q[c.q].fam].slice();
+  if(S.prog.blues&&!S.prog.minor&&Q[c.q].fam==='maj') ids.push('majblues');
+  $('#live').innerHTML=`<p>${playing?'Now playing':'Scales for'} <b>${cname(c)}</b> ${playing?`· next ${cname(nxt)}`:''}</p>
+    <div class="chips">${ids.map((id,j)=>`<button class="chip${j===0?' best':''}" data-scale="${id}" data-r="${c.r}" data-q="${c.q}">${nm(pcOf(c)+(SCALES[id].from||0))} ${SCALES[id].n}</button>`).join('')}</div>
+    <p>Tap a scale to see where it sits on the neck.</p>`;
+}
+function renderPanel(){
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===S.tab));
+  const c=selChord(), {b,i}=S.sel, {next}=around(b,i); let h='';
+  if(S.tab==='voic'){
+    const tones=Q[c.q].iv.map(x=>nm(pcOf(c)+x)).join(' · ');
+    h=`<p class="note"><b>${cname(c)}</b> is ${tones}. Numbers are left-hand fingers, the blue dot is the root. Tap a shape to hear it.</p>
+       <div class="grid">${voicings(c).map((v,j)=>`<button class="voic" data-strum="${j}">${chordSvg(v)}<span>${v.label}</span></button>`).join('')}</div>
+       <p class="note">Shell shapes (root, 3rd, 7th) leave fingers free and stay out of a bass player's way.</p>`;
+  } else if(S.tab==='subs'){
+    S.subs=subsFor(c,b,i);
+    h=`<p class="note">Swap <b>${cname(c)}</b> for one of these. The chart and the backing track update straight away.</p>`+
+      S.subs.map((s,j)=>`<div class="row"><h3><em>${s.t}</em>${s.chs.map(cname).join(' – ')}</h3><p>${s.why}</p><button class="use" data-sub="${j}">Use it</button></div>`).join('');
+  } else if(S.tab==='next'){
+    const va=voicings(c), vb=voicings(next); let best=null;
+    va.forEach(x=>vb.forEach(y=>{const d=Math.abs(x.pos-y.pos)+(x.root===y.root?1.5:0);if(!best||d<best.d) best={d,x,y};}));
+    S.ways=waysTo(c,b,i);
+    h=`<p class="note">Getting from <b>${cname(c)}</b> to <b>${cname(next)}</b>. Follow the 3rd and 7th: they carry the harmony.</p>
+       <ul class="vl">${guideLines(c,next)}</ul>
+       <h4>Closest pair of shapes</h4>
+       <div class="pair"><div class="voic">${chordSvg(best.x)}<span>${cname(c)}</span></div><b>→</b><div class="voic">${chordSvg(best.y)}<span>${cname(next)}</span></div></div>
+       <h4>Add a connecting chord</h4>`+
+      (S.ways?S.ways.map((s,j)=>`<div class="row"><h3><em>${s.t}</em>${s.chs.map(cname).join(' – ')}</h3><p>${s.why}</p><button class="use" data-way="${j}">Use it</button></div>`).join('')
+       :`<p class="note">${cname(c)} only lasts two beats here, so there is no room for another chord. Use the voice leading above.</p>`);
+  } else {
+    S.licks=licksFor(c,b,i); let last='';
+    h=`<p class="note">Licks are shown in tab for this key, in swung eighth notes. Each one ends on a held note.</p>`+
+      S.licks.map((x,j)=>{const head=x.title!==last?`<h4>${x.title}</h4>`:'';last=x.title;
+        return `${head}<div class="lick"><header><h3>${x.l.name}</h3><button class="ghost" data-lick="${j}">Hear it</button></header>
+        <div class="tabwrap"><pre>${tabText(x.l,x.anchor,x.labels,x.minorRes)}</pre></div><p class="note">${x.l.tip}</p></div>`;}).join('');
+  }
+  $('#panel').innerHTML=h;
+}
+function renderAll(){renderChart();renderLive(true);renderPanel();}
+function loadProg(p,keepKey){S.prog=p;if(!keepKey)S.key=p.key;S.bars=parse(p.c);S.sel={b:0,i:0};S.cur=-1;beatNo=0;uiQ.length=0;renderPickers();renderAll();save();}
+
+/* scale sheet */
+let sheet=null;
+function openSheet(id,c){
+  const sc=SCALES[id], pcs=scalePcs(c,sc), ps=positions(pcs);
+  const rf=mod(pcOf(c)-4)||12; let p=ps.filter(x=>x<=rf).pop()||ps[0];
+  sheet={id,c,ps,p,mode:(sheet&&sheet.mode)||'fingers'}; drawSheet(); $('#sheet').hidden=false;
+}
+function degree(x,s){x=mod(x);const has=n=>s.some(v=>mod(v)===n);
+  if(x===6) return has(4)&&!has(5)?'♯4':'♭5'; if(x===8) return has(4)&&!has(7)?'♯5':'♭6';
+  return ['1','♭2','2','♭3','3','4','','5','','6','♭7','7'][x];}
+function drawSheet(){
+  const {id,c,ps,p,mode}=sheet, sc=SCALES[id], off=sc.from||0, k=ps.indexOf(p);
+  $('#sheetIn').innerHTML=`<div class="sec-head"><h2>${nm(pcOf(c)+off)} ${sc.n}</h2><button class="ghost" data-x="close">Close</button></div>
+    <p class="note">Over <b>${cname(c)}</b>. ${sc.w}</p>
+    <p class="notes">${sc.s.map(x=>nm(pcOf(c)+off+x)).join('  ')}<span>${sc.s.map(x=>degree(x+off,sc.s.map(v=>v+off))).join('  ')} &nbsp;(against the chord root)</span></p>
+    ${fretboardSvg(c,sc,p,mode)}
+    <div class="legend"><span><i class="rt"></i>Chord root</span><span><i></i>Chord tone</span><span><i class="sc"></i>Other scale note</span></div>
+    <div class="ctl">
+      <button class="ghost" data-x="down"${k<=0?' disabled':''}>◀ Lower</button>
+      <output>Position ${k+1} of ${ps.length}, fret ${p}</output>
+      <button class="ghost" data-x="up"${k>=ps.length-1?' disabled':''}>Higher ▶</button>
+    </div>
+    <div class="ctl">
+      <button class="ghost" data-x="mode">${mode==='fingers'?'Show note names':'Show fingers'}</button>
+      <button class="ghost" data-x="hear">Hear the scale</button>
+    </div>
+    <p class="note">Numbers are left-hand fingers with the index at fret ${p}. Where a string has three notes spread over five frets, stretch or shift.</p>`;
+}
+
+/* ---------- audio ---------- */
+let ctx,bus={},noise,timer=null,beatNo=0,beatTime=0;const uiQ=[];
+function audio(){
+  if(!ctx){
+    ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const comp=ctx.createDynamicsCompressor();comp.connect(ctx.destination);
+    for(const [k,v] of Object.entries({piano:.5,bass:.75,drums:.5,lead:.6})){bus[k]=ctx.createGain();bus[k].gain.value=v;bus[k].connect(comp);}
+    noise=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  }
+  if(ctx.state!=='running') ctx.resume();
+  return ctx;
+}
+const hz=m=>440*Math.pow(2,(m-69)/12);
+function tone(out,m,t,dur,vel,kind){
+  const g=ctx.createGain(),lp=ctx.createBiquadFilter();lp.type='lowpass';
+  const cfg={piano:{w:['triangle','sine'],r:[1,2],a:[1,.3],f0:3200,f1:900,dec:.6,sus:.25},
+             bass:{w:['triangle','sine'],r:[1,1],a:[.8,.8],f0:700,f1:260,dec:.35,sus:.4},
+             lead:{w:['sawtooth','triangle'],r:[1,1],a:[.35,.7],f0:2600,f1:700,dec:.3,sus:.3}}[kind];
+  lp.frequency.setValueAtTime(cfg.f0,t);lp.frequency.exponentialRampToValueAtTime(cfg.f1,t+cfg.dec);
+  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vel,t+.006);
+  g.gain.exponentialRampToValueAtTime(Math.max(.0002,vel*cfg.sus),t+cfg.dec);
+  g.gain.setValueAtTime(Math.max(.0002,vel*cfg.sus),t+Math.max(dur,cfg.dec));
+  g.gain.exponentialRampToValueAtTime(.0001,t+Math.max(dur,cfg.dec)+.18);
+  cfg.w.forEach((w,i)=>{const o=ctx.createOscillator(),og=ctx.createGain();o.type=w;o.frequency.value=hz(m)*cfg.r[i];o.detune.value=i*4;og.gain.value=cfg.a[i];
+    o.connect(og);og.connect(lp);o.start(t);o.stop(t+Math.max(dur,cfg.dec)+.25);});
+  lp.connect(g);g.connect(out);
+}
+function hit(t,type,vel){
+  if(type==='kick'){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(95,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);
+    g.gain.setValueAtTime(vel,t);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.connect(g);g.connect(bus.drums);o.start(t);o.stop(t+.2);return;}
+  const cfg={ride:{ft:'highpass',f:7000,a:.002,d:.42},hat:{ft:'highpass',f:9000,a:.001,d:.05},brush:{ft:'bandpass',f:2400,a:.03,d:.16}}[type];
+  const src=ctx.createBufferSource(),fl=ctx.createBiquadFilter(),g=ctx.createGain();src.buffer=noise;fl.type=cfg.ft;fl.frequency.value=cfg.f;
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vel,t+cfg.a);g.gain.exponentialRampToValueAtTime(.0001,t+cfg.a+cfg.d);
+  src.connect(fl);fl.connect(g);g.connect(bus.drums);src.start(t,Math.random()*.4);src.stop(t+cfg.a+cfg.d+.05);
+}
+function pianoVoicing(c){
+  const pc=pcOf(c),q=Q[c.q],out=[];
+  q.g.forEach(g=>{let m=48+mod(pc+g);while(m<53)m+=12;out.push(m);});
+  q.iv.filter(x=>x!==0&&!q.g.includes(x)).slice(0,2).forEach(x=>{let m=60+mod(pc+x);if(m<62)m+=12;out.push(m);});
+  if(!S.mix.bass){let m=36+pc;if(m<43)m+=12;out.push(m);}
+  return out;
+}
+const bassRoot=pc=>pc<=7?36+pc:24+pc;
+function scheduleBeat(n,t){
+  const f=flat(), pos=n%f.total, k=f.list.findIndex(e=>pos>=e.start&&pos<e.start+e.len), ev=f.list[k], nx=f.list[(k+1)%f.list.length];
+  const j=pos-ev.start, inBar=pos%4, bd=60/S.tempo, sw=bd*2/3;
+  uiQ.push({t,k});
+  if(S.mix.drums){
+    hit(t,'ride',inBar%2?.2:.15);
+    if(inBar%2){hit(t+sw,'ride',.1);hit(t,'hat',.16);hit(t,'brush',.07);}
+    if(inBar===0) hit(t,'kick',.3);
+  }
+  if(S.mix.bass){
+    const pc=pcOf(ev.c), r=bassRoot(pc), iv=Q[ev.c.q].iv; let m=r;
+    if(j===0) m=r;
+    else if(j===ev.len-1){const nr=bassRoot(pcOf(nx.c));m=pcOf(nx.c)===pc?r+7:nr+(Math.random()<.5?1:-1);}
+    else m=r+(j===1?iv[1]:(iv[2]>12?7:iv[2]));
+    tone(bus.bass,m,t,bd*.9,.5,'bass');
+  }
+  if(S.mix.piano){
+    const v=pianoVoicing(ev.c), play=(tt,d,vel)=>v.forEach((m,x)=>tone(bus.piano,m,tt+x*.006,d,vel*(.85+Math.random()*.15),'piano'));
+    if(j===0) play(t,bd*Math.min(ev.len,1.4),.2);
+    if(ev.len===4&&j===1) play(t+sw,bd*.9,.15);
+  }
+}
+function tick(){
+  while(beatTime<ctx.currentTime+.15){scheduleBeat(beatNo,beatTime);beatTime+=60/S.tempo;beatNo++;}
+}
+function frame(){
+  if(!S.playing) return;
+  let ch=false; while(uiQ.length&&uiQ[0].t<=ctx.currentTime){S.cur=uiQ.shift().k;ch=true;}
+  if(ch){document.querySelectorAll('.ch').forEach(el=>el.classList.toggle('now',+el.dataset.k===S.cur));renderLive();}
+  requestAnimationFrame(frame);
+}
+function start(){audio();S.playing=true;beatNo=0;beatTime=ctx.currentTime+.12;uiQ.length=0;tick();timer=setInterval(tick,25);
+  $('#play').textContent='Stop';$('#play').setAttribute('aria-label','Stop');requestAnimationFrame(frame);}
+function stop(){S.playing=false;clearInterval(timer);S.cur=-1;uiQ.length=0;$('#play').textContent='Play';$('#play').setAttribute('aria-label','Play the changes');renderChart();renderLive(true);}
+function playLine(pitches,swing){
+  audio();const bd=60/S.tempo;let t=ctx.currentTime+.06;
+  pitches.forEach((m,x)=>{const last=x===pitches.length-1,d=swing?(x%2?bd/3:bd*2/3):bd/2;tone(bus.lead,m,t,last?bd*2:d*.95,.32,'lead');t+=d;});
+}
+
+/* ---------- events ---------- */
+$('#prog').onchange=e=>loadProg(PROGS.find(p=>p.id===e.target.value));
+$('#key').onchange=e=>{S.key=+e.target.value;save();renderAll();};
+$('#reset').onclick=()=>{S.bars=parse(S.prog.c);S.sel={b:0,i:0};renderAll();};
+$('#chart').onclick=e=>{const el=e.target.closest('.ch');if(!el)return;S.sel={b:+el.dataset.b,i:+el.dataset.i};renderAll();};
+$('#tabs').onclick=e=>{const el=e.target.closest('.tab');if(!el)return;S.tab=el.dataset.tab;renderPanel();};
+$('#live').onclick=e=>{const el=e.target.closest('.chip');if(el) openSheet(el.dataset.scale,{r:+el.dataset.r,q:el.dataset.q});};
+$('#panel').onclick=e=>{
+  const el=e.target.closest('button');if(!el)return;const d=el.dataset,{b,i}=S.sel;
+  if(d.strum!=null){const v=voicings(selChord())[+d.strum];audio();let t=ctx.currentTime+.05;
+    v.frets.forEach((f,s)=>{if(f!=null){tone(bus.lead,OPEN[s]+f,t,1.6,.22,'lead');t+=.045;}});}
+  else if(d.sub!=null){S.bars[b].splice(i,1,...S.subs[+d.sub].chs.map(c=>({...c})));renderAll();}
+  else if(d.way!=null){const w=S.ways[+d.way];S.bars[b]=(w.four?[w.chs[0],w.chs[0],w.chs[1],w.chs[2]]:w.chs).map(c=>({...c}));renderAll();}
+  else if(d.lick!=null){const x=S.licks[+d.lick];playLine(lickPitches(x.l,x.anchor,x.minorRes),true);}
+};
+$('#sheet').onclick=e=>{
+  if(e.target.id==='sheet'){$('#sheet').hidden=true;return;}
+  const el=e.target.closest('button');if(!el)return;const x=el.dataset.x,k=sheet.ps.indexOf(sheet.p);
+  if(x==='close'){$('#sheet').hidden=true;return;}
+  if(x==='down') sheet.p=sheet.ps[k-1]; if(x==='up') sheet.p=sheet.ps[k+1];
+  if(x==='mode') sheet.mode=sheet.mode==='fingers'?'notes':'fingers';
+  if(x==='hear'){const sc=SCALES[sheet.id];let r=48+mod(pcOf(sheet.c)+(sc.from||0));const up=sc.s.map(v=>r+v);playLine([...up,r+12,...up.slice().reverse()],false);return;}
+  drawSheet();
+};
+$('#play').onclick=()=>S.playing?stop():start();
+$('#tempo').oninput=e=>{S.tempo=+e.target.value;$('#bpm').textContent=S.tempo+' bpm';save();};
+$('#mix').onclick=e=>{const el=e.target.closest('button');if(!el)return;const m=el.dataset.m;S.mix[m]=!S.mix[m];el.setAttribute('aria-pressed',S.mix[m]);};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#sheet').hidden=true;});
+
+$('#tempo').value=S.tempo;$('#bpm').textContent=S.tempo+' bpm';
+loadProg(S.prog,true);
+</script>
+</body>
+</html>
